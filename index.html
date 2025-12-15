@@ -129,9 +129,9 @@
       100% { transform: translateX(220%) skewX(-20deg); }
     }
     .alarm-burst {
-      position: fixed;
-      left: 14%;
-      top: 12%;
+      position: absolute;
+      left: 43%;
+      top: 34%;
       width: 110px;
       height: 110px;
       transform: translate(-50%, -50%) scale(0.4);
@@ -140,7 +140,7 @@
       box-shadow: 0 0 30px rgba(255, 80, 80, 0.7), 0 0 60px rgba(255, 0, 0, 0.5);
       opacity: 0;
       pointer-events: none;
-      z-index: 5;
+      z-index: 3;
       animation: alarmFlash 0.9s ease-out forwards;
     }
     @keyframes alarmFlash {
