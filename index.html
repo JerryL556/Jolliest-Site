@@ -862,7 +862,7 @@
         updateCounter();
         if (hohoEl && jollyCount % 10 === 0) {
           hohoEl.currentTime = 0;
-          hohoEl.volume = audioEl ? audioEl.volume : 0.6;
+          hohoEl.volume = audioEl ? Math.min(0.3, audioEl.volume * 0.6) : 0.3;
           hohoEl.play().catch(() => {});
         }
         triggerAlarm();
