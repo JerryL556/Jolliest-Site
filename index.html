@@ -130,25 +130,124 @@
     }
     .alarm-burst {
       position: absolute;
-      left: 43%;
-      top: 34%;
       width: 110px;
       height: 110px;
       transform: translate(-50%, -50%) scale(0.4);
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.65) 0%, rgba(255, 130, 130, 0.95) 28%, rgba(255, 0, 0, 0.55) 60%, transparent 72%);
-      box-shadow: 0 0 30px rgba(255, 80, 80, 0.7), 0 0 60px rgba(255, 0, 0, 0.5);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 130, 130, 1) 30%, rgba(255, 0, 0, 0.7) 62%, transparent 75%);
+      box-shadow: 0 0 36px rgba(255, 80, 80, 0.9), 0 0 110px rgba(255, 0, 0, 0.7);
       opacity: 0;
       pointer-events: none;
       z-index: 3;
       animation: alarmFlash 0.9s ease-out forwards;
+      overflow: visible;
+    }
+    .alarm-burst::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 280px;
+      height: 30px;
+      transform: translate(-50%, -50%) rotate(0deg);
+      border-radius: 22px;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(255,200,200,0.55) 45%, rgba(255,0,0,0) 70%);
+      filter: blur(1px);
+      opacity: 0;
+      animation: glareFlash 0.9s ease-out forwards;
     }
     @keyframes alarmFlash {
       0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
       20% { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(255, 80, 80, 0.85), 0 0 90px rgba(255, 0, 0, 0.6); }
       60% { opacity: 0.75; transform: translate(-50%, -50%) scale(1.6); }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.2); box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); box-shadow: 0 0 18px rgba(255, 0, 0, 0.25); }
     }
+    @keyframes glareFlash {
+      0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.6); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scaleX(1.2); }
+      60% { opacity: 0.8; transform: translate(-50%, -50%) scaleX(1.8); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scaleX(2.6); }
+    }
+    .settings-panel {
+      position: fixed;
+      top: 86px;
+      left: 16px;
+      width: 230px;
+      padding: 14px 16px 16px;
+      background: rgba(9, 24, 19, 0.78);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 14px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.4);
+      color: #eaf4ff;
+      font-family: 'Manrope', 'Segoe UI', sans-serif;
+      z-index: 4;
+      backdrop-filter: blur(4px);
+    }
+    .settings-panel h3 {
+      margin: 0 0 8px;
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: #ffd479;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    }
+    .settings-panel .setting {
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .settings-panel label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #f7fbff;
+    }
+    .settings-panel input[type="range"] {
+      width: 100%;
+      accent-color: #ffd479;
+    }
+    .settings-value {
+      font-weight: 800;
+      color: #ffd479;
+      margin-left: 8px;
+    }
+    .hub-button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: linear-gradient(135deg, rgba(255, 90, 90, 0.95), rgba(255, 200, 120, 0.9));
+      color: #0d1b14;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+      text-transform: uppercase;
+    }
+    .hub-button:hover { transform: translateY(-1px); }
+    .snow-bomb {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      background: transparent;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+      cursor: grab;
+      user-select: none;
+      z-index: 5;
+      transition: transform 0.1s ease;
+      touch-action: none;
+    }
+    .snow-bomb.dragging { cursor: grabbing; }
     .page {
       position: relative;
       z-index: 2;
@@ -419,7 +518,24 @@
 </head>
 <body>
   <canvas id="snow-canvas"></canvas>
+  <div class="settings-panel">
+    <h3>The Holiday Hub</h3>
+    <div class="setting">
+      <label>Snow speed <span class="settings-value" id="speedValue">1.0x</span></label>
+      <input type="range" id="speedControl" min="0.6" max="8" step="0.1" value="1.0">
+    </div>
+    <div class="setting">
+      <label>Snow density <span class="settings-value" id="densityValue">1.0x</span></label>
+      <input type="range" id="densityControl" min="0.5" max="8.0" step="0.1" value="1.0">
+    </div>
+    <div class="setting">
+      <label>Wind <span class="settings-value" id="windValue">0</span></label>
+      <input type="range" id="windControl" min="-2000" max="2000" step="50" value="0">
+    </div>
+    <button class="hub-button" id="blizzardBtn">Blizzard Mode</button>
+  </div>
   <div class="title-banner">The Festive Site</div>
+  <div class="snow-bomb" id="snowBomb">&#128163;</div>
   <div class="scene">
     <div class="illustration">
       <img src="jolliest hand v2.png" alt="Festive hand illustration" class="art-hand" loading="lazy" draggable="false">
@@ -437,6 +553,11 @@
     let segments = 180;
     let lastTime = performance.now();
     const maxPileRatio = 0.42; // limits pile height relative to viewport
+    let speedMultiplier = 1;
+    let densityMultiplier = 1;
+    let baseFlakeCount = 0;
+    let windOffset = 0;
+    const blastEffects = [];
 
     function resize() {
       width = canvas.width = window.innerWidth;
@@ -449,8 +570,8 @@
         const prev = existing[Math.floor(i / ground.length * existing.length)] || 0;
         ground[i] = prev;
       }
-      const flakeCount = Math.max(140, Math.floor(width * height / 9000));
-      flakes = Array.from({ length: flakeCount }, () => makeFlake());
+      baseFlakeCount = Math.max(140, Math.floor(width * height / 9000));
+      applyDensity();
     }
 
     function makeFlake() {
@@ -459,7 +580,7 @@
         x: Math.random() * width,
         y: Math.random() * height,
         r,
-        vy: 18 + Math.random() * 25,
+        vy: 35 + Math.random() * 40,
         drift: (Math.random() - 0.5) * 0.6,
         swingSeed: Math.random() * Math.PI * 2,
       };
@@ -505,6 +626,47 @@
       ctx.restore();
     }
 
+    function drawBlasts(delta) {
+      for (let i = blastEffects.length - 1; i >= 0; i--) {
+        const blast = blastEffects[i];
+        blast.t += delta;
+        const life = blast.t / blast.duration;
+        if (life >= 1) {
+          blastEffects.splice(i, 1);
+          continue;
+        }
+        const alpha = (1 - life) * blast.intensity;
+        const r = blast.radius * (1 + life * 0.6);
+        const grad = ctx.createRadialGradient(blast.x, blast.y, 0, blast.x, blast.y, r);
+        grad.addColorStop(0, `rgba(255,255,255,${0.4 * alpha})`);
+        grad.addColorStop(0.4, `rgba(255,200,200,${0.3 * alpha})`);
+        grad.addColorStop(1, 'rgba(255,0,0,0)');
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(blast.x, blast.y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function clearSnowAt(x, radius) {
+      let removed = 0;
+      const step = width / (ground.length - 1);
+      for (let i = 0; i < ground.length; i++) {
+        const gx = i * step;
+        const dx = Math.abs(gx - x);
+        if (dx > radius) continue;
+        const falloff = Math.cos((dx / radius) * Math.PI / 2);
+        const amount = radius * 0.9 * falloff;
+        const before = ground[i];
+        ground[i] = Math.max(0, ground[i] - amount);
+        removed += before - ground[i];
+      }
+      return removed;
+    }
+
     function drawSnow(flake) {
       ctx.beginPath();
       ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
@@ -512,16 +674,27 @@
       ctx.fill();
     }
 
+    function applyDensity() {
+      const desired = Math.max(50, Math.round(baseFlakeCount * densityMultiplier));
+      if (desired > flakes.length) {
+        const addCount = desired - flakes.length;
+        for (let i = 0; i < addCount; i++) flakes.push(makeFlake());
+      } else if (desired < flakes.length) {
+        flakes.length = desired;
+      }
+    }
+
     function animate(now) {
       const delta = Math.min(0.05, (now - lastTime) / 1000); // clamp delta for stability
       lastTime = now;
       ctx.clearRect(0, 0, width, height);
       drawGround();
+      drawBlasts(delta);
 
-      const breeze = Math.sin(now * 0.0003) * 12;
+      const breeze = Math.sin(now * 0.0003) * 12 + windOffset;
       for (const flake of flakes) {
         flake.x += (flake.drift * 35 + breeze * 0.4 + Math.sin(now * 0.001 + flake.swingSeed) * 8) * delta;
-        flake.y += flake.vy * delta;
+        flake.y += flake.vy * delta * speedMultiplier;
 
         if (flake.x < -5) flake.x = width + 5;
         if (flake.x > width + 5) flake.x = -5;
@@ -561,6 +734,21 @@
     const maxPull = 120; // fixed short pull distance
     let jollyCount = 0;
     const counterEl = document.getElementById('jolly-counter');
+    const illustrationEl = document.querySelector('.illustration');
+    const alarmAnchor = { x: 108, y: 90 }; // anchor on the background art (native 451x498)
+    const alarmBaseSize = { w: 451, h: 498 };
+    const speedControl = document.getElementById('speedControl');
+    const densityControl = document.getElementById('densityControl');
+    const speedValue = document.getElementById('speedValue');
+    const densityValue = document.getElementById('densityValue');
+    const windControl = document.getElementById('windControl');
+    const windValue = document.getElementById('windValue');
+    const blizzardBtn = document.getElementById('blizzardBtn');
+    const bombEl = document.getElementById('snowBomb');
+    let bombPos = { x: window.innerWidth - 90, y: 18 };
+    let bombDragging = false;
+    let bombOffset = { x: 0, y: 0 };
+    const bombSize = 64;
 
     function updateCounter() {
       if (counterEl) counterEl.textContent = `The Jolliness Counter: ${jollyCount}`;
@@ -630,9 +818,145 @@
     function triggerAlarm() {
       const burst = document.createElement('div');
       burst.className = 'alarm-burst';
-      document.body.appendChild(burst);
+      if (illustrationEl) {
+        const scaleX = illustrationEl.clientWidth / alarmBaseSize.w;
+        const scaleY = illustrationEl.clientHeight / alarmBaseSize.h;
+        const leftPx = alarmAnchor.x * scaleX;
+        const topPx = alarmAnchor.y * scaleY;
+        burst.style.left = `${leftPx}px`;
+        burst.style.top = `${topPx}px`;
+        illustrationEl.appendChild(burst);
+      } else {
+        document.body.appendChild(burst);
+      }
       burst.addEventListener('animationend', () => burst.remove());
     }
+
+    function addBlastEffect(x, removed) {
+      const intensity = Math.max(0.35, Math.min(1, removed / 8000));
+      const radius = Math.max(140, 120 + Math.min(220, removed / 30));
+      const y = height - groundHeightAt(x);
+      blastEffects.push({ x, y, radius, intensity, t: 0, duration: 1.2 });
+    }
+
+    function launchBomb() {
+      let x = bombPos.x;
+      let y = bombPos.y;
+      const gravity = 980;
+      let vx = 0;
+      let vy = 0;
+      let last = performance.now();
+      function step(now) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        x += vx * dt;
+        y += vy * dt + 0.5 * gravity * dt * dt;
+        vy += gravity * dt;
+        bombPos = { x, y };
+        bombEl.style.transform = `translate(${x}px, ${y}px)`;
+        const groundY = height - groundHeightAt(x);
+        if (y + bombSize >= groundY) {
+          const removed = clearSnowAt(x, 140);
+          addBlastEffect(x, removed);
+          resetBomb();
+          return;
+        }
+        if (y > height + 200 || x < -200 || x > width + 200) {
+          resetBomb();
+          return;
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function resetBomb() {
+      bombPos = { x: window.innerWidth - 90, y: 18 };
+      bombEl.style.transform = `translate(${bombPos.x}px, ${bombPos.y}px)`;
+    }
+
+    function bindBomb() {
+      if (!bombEl) return;
+      bombEl.style.transform = `translate(${bombPos.x}px, ${bombPos.y}px)`;
+      bombEl.addEventListener('dragstart', e => e.preventDefault());
+      bombEl.addEventListener('pointerdown', e => {
+        bombDragging = true;
+        bombOffset = { x: e.clientX - bombPos.x, y: e.clientY - bombPos.y };
+        bombEl.classList.add('dragging');
+        bombEl.setPointerCapture(e.pointerId);
+      });
+      bombEl.addEventListener('pointermove', e => {
+        if (!bombDragging) return;
+        bombPos.x = e.clientX - bombOffset.x;
+        bombPos.y = e.clientY - bombOffset.y;
+        bombPos.x = Math.max(0, Math.min(width - bombSize, bombPos.x));
+        bombPos.y = Math.max(0, Math.min(height - bombSize, bombPos.y));
+        bombEl.style.transform = `translate(${bombPos.x}px, ${bombPos.y}px)`;
+      });
+      bombEl.addEventListener('pointerup', e => {
+        if (!bombDragging) return;
+        bombDragging = false;
+        bombEl.classList.remove('dragging');
+        bombEl.releasePointerCapture(e.pointerId);
+        launchBomb();
+      });
+      bombEl.addEventListener('pointercancel', () => {
+        bombDragging = false;
+        bombEl.classList.remove('dragging');
+      });
+    }
+
+    // Holiday Hub controls
+    function bindSettings() {
+      if (speedControl && speedValue) {
+        const updateSpeed = () => {
+          speedMultiplier = parseFloat(speedControl.value);
+          speedValue.textContent = `${speedMultiplier.toFixed(1)}x`;
+        };
+        speedControl.addEventListener('input', updateSpeed);
+        updateSpeed();
+      }
+      if (densityControl && densityValue) {
+        const updateDensity = () => {
+          densityMultiplier = parseFloat(densityControl.value);
+          densityValue.textContent = `${densityMultiplier.toFixed(1)}x`;
+          applyDensity();
+        };
+        densityControl.addEventListener('input', updateDensity);
+        updateDensity();
+      }
+      if (windControl && windValue) {
+        const updateWind = () => {
+          windOffset = parseFloat(windControl.value) || 0;
+          windValue.textContent = `${windOffset.toFixed(0)}`;
+        };
+        windControl.addEventListener('input', updateWind);
+        updateWind();
+      }
+      if (blizzardBtn) {
+        blizzardBtn.addEventListener('click', () => {
+          const blizzardSpeed = 8;
+          const blizzardDensity = 8;
+          const blizzardWind = 2000;
+          speedMultiplier = blizzardSpeed;
+          densityMultiplier = blizzardDensity;
+          windOffset = blizzardWind;
+          if (speedControl) speedControl.value = blizzardSpeed;
+          if (densityControl) densityControl.value = blizzardDensity;
+          if (windControl) windControl.value = blizzardWind;
+          if (speedValue) speedValue.textContent = `${blizzardSpeed.toFixed(1)}x`;
+          if (densityValue) densityValue.textContent = `${blizzardDensity.toFixed(1)}x`;
+          if (windValue) windValue.textContent = `${blizzardWind.toFixed(0)}`;
+          applyDensity();
+        });
+      }
+    }
+
+    bindSettings();
+    bindBomb();
+    window.addEventListener('resize', () => {
+      if (!bombDragging) resetBomb();
+    });
   </script>
 </body>
 </html>
