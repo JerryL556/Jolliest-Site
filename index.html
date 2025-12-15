@@ -803,6 +803,7 @@
     const volumeControl = document.getElementById('volumeControl');
     const volumeValue = document.getElementById('volumeValue');
     const muteBtn = document.getElementById('muteBtn');
+    const hohoEl = new Audio('ho-ho-ho-merry-christmas-439603.mp3');
     let bombPos = { x: window.innerWidth - 200, y: 40 };
     let bombDragging = false;
     let bombOffset = { x: 0, y: 0 };
@@ -859,6 +860,11 @@
       if (currentY >= maxPull - 1) {
         jollyCount += 1;
         updateCounter();
+        if (hohoEl && jollyCount % 10 === 0) {
+          hohoEl.currentTime = 0;
+          hohoEl.volume = audioEl ? audioEl.volume : 0.6;
+          hohoEl.play().catch(() => {});
+        }
         triggerAlarm();
       }
       animateBack();
