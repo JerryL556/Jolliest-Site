@@ -232,6 +232,19 @@
       text-transform: uppercase;
     }
     .hub-button:hover { transform: translateY(-1px); }
+    .hub-mini {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.1);
+      color: #fefefe;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
+    .hub-mini:hover { transform: translateY(-1px); }
     .snow-bomb {
       position: fixed;
       top: 0;
@@ -557,6 +570,11 @@
       <label>Wind <span class="settings-value" id="windValue">0</span></label>
       <input type="range" id="windControl" min="-2000" max="2000" step="50" value="0">
     </div>
+    <div class="setting">
+      <label>Music volume <span class="settings-value" id="volumeValue">50%</span></label>
+      <input type="range" id="volumeControl" min="0" max="100" step="1" value="50">
+      <button class="hub-mini" id="muteBtn">Mute / Unmute</button>
+    </div>
     <button class="hub-button" id="blizzardBtn">Blizzard Mode</button>
   </div>
   <div class="title-banner">The Festive Site</div>
@@ -569,6 +587,7 @@
     </div>
   </div>
   <div class="counter" id="jolly-counter">The Jolliness Counter: 0</div>
+  <audio id="bg-audio" src="Burl Ives - A Holly Jolly Christmas.mp3" loop></audio>
 
   <script>
     // Festive snowfall with accumulation that builds a drift over time.
@@ -780,6 +799,10 @@
     const windValue = document.getElementById('windValue');
     const blizzardBtn = document.getElementById('blizzardBtn');
     const bombEl = document.getElementById('snowBomb');
+    const audioEl = document.getElementById('bg-audio');
+    const volumeControl = document.getElementById('volumeControl');
+    const volumeValue = document.getElementById('volumeValue');
+    const muteBtn = document.getElementById('muteBtn');
     let bombPos = { x: window.innerWidth - 200, y: 40 };
     let bombDragging = false;
     let bombOffset = { x: 0, y: 0 };
@@ -967,6 +990,43 @@
         };
         windControl.addEventListener('input', updateWind);
         updateWind();
+      }
+      if (audioEl && volumeControl && volumeValue && muteBtn) {
+        const updateVolume = () => {
+          const vol = Math.max(0, Math.min(1, parseInt(volumeControl.value, 10) / 100));
+          audioEl.volume = vol;
+          volumeValue.textContent = `${Math.round(vol * 100)}%`;
+          try { audioEl.play().catch(() => {}); } catch {}
+        };
+        volumeControl.addEventListener('input', updateVolume);
+        muteBtn.addEventListener('click', () => {
+          if (audioEl.muted || audioEl.volume === 0) {
+            audioEl.muted = false;
+            if (parseInt(volumeControl.value, 10) === 0) volumeControl.value = 50;
+          } else {
+            audioEl.muted = true;
+          }
+          if (audioEl.muted) {
+            audioEl.volume = 0;
+            volumeValue.textContent = '0%';
+          } else {
+            const vol = parseInt(volumeControl.value, 10) / 100;
+            audioEl.volume = vol;
+            volumeValue.textContent = `${Math.round(vol * 100)}%`;
+            try { audioEl.play().catch(() => {}); } catch {}
+          }
+        });
+        const kickAudio = () => {
+          if (!audioEl) return;
+          audioEl.volume = parseInt(volumeControl.value, 10) / 100;
+          audioEl.muted = false;
+          audioEl.play().catch(() => {});
+          window.removeEventListener('pointerdown', kickAudio);
+          window.removeEventListener('keydown', kickAudio);
+        };
+        window.addEventListener('pointerdown', kickAudio, { once: true });
+        window.addEventListener('keydown', kickAudio, { once: true });
+        updateVolume();
       }
       if (blizzardBtn) {
         blizzardBtn.addEventListener('click', () => {
