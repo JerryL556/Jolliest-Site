@@ -251,7 +251,7 @@
     .corner-art {
       position: fixed;
       top: 44px;
-      right: 74px;
+      right: 88px;
       width: 140px;
       height: 140px;
       object-fit: contain;
@@ -749,14 +749,6 @@
           drawSnow(flake);
         }
       }
-
-      ctx.save();
-      ctx.shadowColor = 'rgba(255,255,255,0.5)';
-      ctx.shadowBlur = 6;
-      ctx.globalAlpha = 0.6;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, height - Math.max(...ground), width, 2);
-      ctx.restore();
 
       requestAnimationFrame(animate);
     }
