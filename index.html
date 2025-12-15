@@ -248,6 +248,16 @@
       touch-action: none;
     }
     .snow-bomb.dragging { cursor: grabbing; }
+    .corner-art {
+      position: fixed;
+      top: 10px;
+      right: 70px;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      z-index: 4;
+      pointer-events: none;
+    }
     .page {
       position: relative;
       z-index: 2;
@@ -535,6 +545,7 @@
     <button class="hub-button" id="blizzardBtn">Blizzard Mode</button>
   </div>
   <div class="title-banner">The Festive Site</div>
+  <img src="fnnuohi0u7h71.png" alt="Festive corner art" class="corner-art">
   <div class="snow-bomb" id="snowBomb">&#128163;</div>
   <div class="scene">
     <div class="illustration">
@@ -592,18 +603,33 @@
 
     function addSnowAt(x, amount) {
       const idx = groundIndex(x);
-      const spread = 2; // spread to neighbors for softer pile
+      const spread = 3; // spread to neighbors for softer pile
       for (let i = -spread; i <= spread; i++) {
         const target = idx + i;
         if (target < 0 || target >= ground.length) continue;
-        const falloff = 1 - Math.abs(i) / (spread + 0.5);
+        const falloff = Math.pow(1 - Math.abs(i) / (spread + 0.5), 1.5);
         ground[target] = Math.min(height * maxPileRatio, ground[target] + amount * falloff);
       }
+      softenSlope(idx, spread + 2);
     }
 
     function groundHeightAt(x) {
       const idx = groundIndex(x);
       return ground[idx] || 0;
+    }
+
+    // Gently flatten steep local peaks so drifts stay smooth.
+    function softenSlope(center, radius) {
+      const start = Math.max(1, center - radius);
+      const end = Math.min(ground.length - 2, center + radius);
+      const copy = ground.slice(start - 1, end + 2);
+      for (let i = start; i <= end; i++) {
+        const local = copy[i - start + 1];
+        const left = copy[i - start];
+        const right = copy[i - start + 2];
+        const avg = (left + local + right) / 3;
+        ground[i] = ground[i] * 0.6 + avg * 0.4;
+      }
     }
 
     function drawGround() {
@@ -657,9 +683,10 @@
       for (let i = 0; i < ground.length; i++) {
         const gx = i * step;
         const dx = Math.abs(gx - x);
-        if (dx > radius) continue;
-        const falloff = Math.cos((dx / radius) * Math.PI / 2);
-        const amount = radius * 0.9 * falloff;
+        const effective = radius * 1.4;
+        if (dx > effective) continue;
+        const falloff = Math.cos((dx / effective) * Math.PI / 2);
+        const amount = effective * 0.9 * falloff;
         const before = ground[i];
         ground[i] = Math.max(0, ground[i] - amount);
         removed += before - ground[i];
@@ -833,8 +860,8 @@
     }
 
     function addBlastEffect(x, removed) {
-      const intensity = Math.max(0.35, Math.min(1, removed / 8000));
-      const radius = Math.max(140, 120 + Math.min(220, removed / 30));
+      const intensity = Math.max(0.5, Math.min(1.4, removed / 5000));
+      const radius = Math.max(260, 240 + Math.min(420, removed / 16));
       const y = height - groundHeightAt(x);
       blastEffects.push({ x, y, radius, intensity, t: 0, duration: 1.2 });
     }
