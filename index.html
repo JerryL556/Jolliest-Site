@@ -75,6 +75,80 @@
       touch-action: none;
     }
     .art-hand.dragging { cursor: grabbing; }
+    .counter {
+      position: fixed;
+      right: 10%;
+      bottom: 60px;
+      padding: 22px 32px;
+      background: linear-gradient(135deg, rgba(194,32,40,0.95), rgba(32,140,92,0.92));
+      border: 3px solid rgba(255,255,255,0.75);
+      border-radius: 20px;
+      color: #fefefe;
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      z-index: 4;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.5), 0 0 26px rgba(255, 255, 255, 0.38);
+      text-shadow: 0 3px 10px rgba(0,0,0,0.32);
+    }
+    .title-banner {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 22px 48px;
+      border-radius: 26px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22), transparent 50%),
+                  linear-gradient(135deg, rgba(255, 94, 94, 0.35), rgba(255, 255, 255, 0.02));
+      border: none;
+      color: #fefefe;
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 52px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 12px rgba(255, 255, 255, 0.6);
+      box-shadow: 0 22px 48px rgba(0,0,0,0.38), 0 0 32px rgba(255,255,255,0.32);
+      z-index: 4;
+      overflow: hidden;
+    }
+    .title-banner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -30%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.75), transparent);
+      transform: skewX(-20deg);
+      animation: sweep 3.5s linear infinite;
+    }
+    @keyframes sweep {
+      0% { transform: translateX(-120%) skewX(-20deg); }
+      100% { transform: translateX(220%) skewX(-20deg); }
+    }
+    .alarm-burst {
+      position: fixed;
+      left: 14%;
+      top: 12%;
+      width: 110px;
+      height: 110px;
+      transform: translate(-50%, -50%) scale(0.4);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.65) 0%, rgba(255, 130, 130, 0.95) 28%, rgba(255, 0, 0, 0.55) 60%, transparent 72%);
+      box-shadow: 0 0 30px rgba(255, 80, 80, 0.7), 0 0 60px rgba(255, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      animation: alarmFlash 0.9s ease-out forwards;
+    }
+    @keyframes alarmFlash {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(255, 80, 80, 0.85), 0 0 90px rgba(255, 0, 0, 0.6); }
+      60% { opacity: 0.75; transform: translate(-50%, -50%) scale(1.6); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.2); box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+    }
     .page {
       position: relative;
       z-index: 2;
@@ -345,11 +419,13 @@
 </head>
 <body>
   <canvas id="snow-canvas"></canvas>
+  <div class="title-banner">The Festive Site</div>
   <div class="scene">
     <div class="illustration">
       <img src="jolliest hand v2.png" alt="Festive hand illustration" class="art-hand" loading="lazy" draggable="false">
     </div>
   </div>
+  <div class="counter" id="jolly-counter">The Jolliness Counter: 0</div>
 
   <script>
     // Festive snowfall with accumulation that builds a drift over time.
@@ -482,7 +558,13 @@
     let baseOffsetY = 0;
     let currentY = 0;
     let dragging = false;
-    const maxPull = 180; // limit how far down the hand can be dragged
+    const maxPull = 120; // fixed short pull distance
+    let jollyCount = 0;
+    const counterEl = document.getElementById('jolly-counter');
+
+    function updateCounter() {
+      if (counterEl) counterEl.textContent = `The Jolliness Counter: ${jollyCount}`;
+    }
 
     function setHandY(y) {
       currentY = Math.min(maxPull, Math.max(0, y));
@@ -528,6 +610,11 @@
       dragging = false;
       hand.classList.remove('dragging');
       hand.releasePointerCapture(e.pointerId);
+      if (currentY >= maxPull - 1) {
+        jollyCount += 1;
+        updateCounter();
+        triggerAlarm();
+      }
       animateBack();
     }
 
@@ -537,6 +624,14 @@
       hand.addEventListener('pointermove', onPointerMove);
       hand.addEventListener('pointerup', onPointerUp);
       hand.addEventListener('pointercancel', onPointerUp);
+      updateCounter();
+    }
+
+    function triggerAlarm() {
+      const burst = document.createElement('div');
+      burst.className = 'alarm-burst';
+      document.body.appendChild(burst);
+      burst.addEventListener('animationend', () => burst.remove());
     }
   </script>
 </body>
