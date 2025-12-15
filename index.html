@@ -47,8 +47,34 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1;
+      z-index: 3;
     }
+    .scene {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .illustration {
+      position: relative;
+      width: min(451px, 70vw);
+      aspect-ratio: 451 / 498;
+      background: url('jolly alarm background.png') center / contain no-repeat;
+      user-select: none;
+    }
+    .art-hand {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+    }
+    .art-hand.dragging { cursor: grabbing; }
     .page {
       position: relative;
       z-index: 2;
@@ -319,6 +345,11 @@
 </head>
 <body>
   <canvas id="snow-canvas"></canvas>
+  <div class="scene">
+    <div class="illustration">
+      <img src="jolliest hand v2.png" alt="Festive hand illustration" class="art-hand" loading="lazy" draggable="false">
+    </div>
+  </div>
 
   <script>
     // Festive snowfall with accumulation that builds a drift over time.
@@ -444,6 +475,69 @@
     window.addEventListener('resize', resize);
     resize();
     requestAnimationFrame(animate);
+
+    // Drag-and-spring behavior for the hand illustration.
+    const hand = document.querySelector('.art-hand');
+    let dragStartY = 0;
+    let baseOffsetY = 0;
+    let currentY = 0;
+    let dragging = false;
+    const maxPull = 180; // limit how far down the hand can be dragged
+
+    function setHandY(y) {
+      currentY = Math.min(maxPull, Math.max(0, y));
+      hand.style.transform = `translateY(${currentY}px)`;
+    }
+
+    function animateBack() {
+      let y = currentY;
+      let velocity = 0;
+      const stiffness = 0.18;
+      const damping = 0.86;
+      function step() {
+        const force = -stiffness * y;
+        velocity = velocity * damping + force;
+        y += velocity;
+        if (Math.abs(y) < 0.5 && Math.abs(velocity) < 0.5) {
+          setHandY(0);
+          return;
+        }
+        setHandY(y);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function onPointerDown(e) {
+      dragging = true;
+      hand.classList.add('dragging');
+      dragStartY = e.clientY;
+      baseOffsetY = currentY;
+      hand.setPointerCapture(e.pointerId);
+    }
+
+    function onPointerMove(e) {
+      if (!dragging) return;
+      const deltaY = e.clientY - dragStartY;
+      const nextY = baseOffsetY + deltaY;
+      setHandY(nextY);
+    }
+
+    function onPointerUp(e) {
+      if (!dragging) return;
+      dragging = false;
+      hand.classList.remove('dragging');
+      hand.releasePointerCapture(e.pointerId);
+      animateBack();
+    }
+
+    if (hand) {
+      hand.addEventListener('dragstart', e => e.preventDefault());
+      hand.addEventListener('pointerdown', onPointerDown);
+      hand.addEventListener('pointermove', onPointerMove);
+      hand.addEventListener('pointerup', onPointerUp);
+      hand.addEventListener('pointercancel', onPointerUp);
+    }
   </script>
 </body>
 </html>
