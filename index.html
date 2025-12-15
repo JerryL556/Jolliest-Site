@@ -772,7 +772,7 @@
     const windValue = document.getElementById('windValue');
     const blizzardBtn = document.getElementById('blizzardBtn');
     const bombEl = document.getElementById('snowBomb');
-    let bombPos = { x: window.innerWidth - 90, y: 18 };
+    let bombPos = { x: window.innerWidth - 200, y: 40 };
     let bombDragging = false;
     let bombOffset = { x: 0, y: 0 };
     const bombSize = 64;
@@ -898,7 +898,7 @@
     }
 
     function resetBomb() {
-      bombPos = { x: window.innerWidth - 90, y: 18 };
+      bombPos = { x: window.innerWidth - 200, y: 40 };
       bombEl.style.transform = `translate(${bombPos.x}px, ${bombPos.y}px)`;
     }
 
