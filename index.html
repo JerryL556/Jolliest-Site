@@ -293,6 +293,32 @@
       z-index: 4;
       pointer-events: none;
     }
+    .elf-parade {
+      position: fixed;
+      bottom: 18px;
+      right: -420px;
+      display: flex;
+      gap: 18px;
+      z-index: 6;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(0, 0);
+      will-change: transform, opacity;
+    }
+    .elf-parade img {
+      width: 120px;
+      height: auto;
+      filter: drop-shadow(0 12px 20px rgba(0,0,0,0.35));
+    }
+    .elf-parade.show {
+      animation: elfRide 6.2s ease-in-out forwards;
+    }
+    @keyframes elfRide {
+      0% { opacity: 1; transform: translateX(0); }
+      8% { opacity: 1; transform: translateX(-10vw); }
+      80% { opacity: 1; transform: translateX(-140vw); }
+      100% { opacity: 0; transform: translateX(-180vw); }
+    }
     .page {
       position: relative;
       z-index: 2;
@@ -594,6 +620,11 @@
     </div>
   </div>
   <div class="counter" id="jolly-counter">The Jolliness Counter: 0</div>
+  <div class="elf-parade" id="elfParade" aria-hidden="true">
+    <img src="elf.gif" alt="Marching elf">
+    <img src="elf.gif" alt="Marching elf">
+    <img src="elf.gif" alt="Marching elf">
+  </div>
   <audio id="bg-audio" src="Burl Ives - A Holly Jolly Christmas.mp3" loop></audio>
 
   <script>
@@ -862,11 +893,13 @@
     const volumeValue = document.getElementById('volumeValue');
     const muteBtn = document.getElementById('muteBtn');
     const hohoEl = new Audio('ho-ho-ho-merry-christmas-439603.mp3');
+    const elfParade = document.getElementById('elfParade');
     let bombPos = { x: window.innerWidth - 200, y: 40 };
     let bombDragging = false;
     let bombOffset = { x: 0, y: 0 };
     const bombSize = 64;
     let springFrame = null;
+    let elfTimer = null;
 
     function updateCounter() {
       if (counterEl) counterEl.textContent = `The Jolliness Counter: ${jollyCount}`;
@@ -924,11 +957,13 @@
       if (currentY >= maxPull - 1) {
         jollyCount += 1;
         updateCounter();
-        if (hohoEl && jollyCount % 10 === 0) {
+        const hitMilestone = jollyCount % 10 === 0;
+        if (hitMilestone && hohoEl) {
           hohoEl.currentTime = 0;
           hohoEl.volume = audioEl ? Math.min(0.3, audioEl.volume * 0.6) : 0.3;
           hohoEl.play().catch(() => {});
         }
+        if (hitMilestone) launchElfParade();
         triggerAlarm();
       }
       animateBack();
@@ -958,6 +993,21 @@
         document.body.appendChild(burst);
       }
       burst.addEventListener('animationend', () => burst.remove());
+    }
+
+    function launchElfParade() {
+      if (!elfParade) return;
+      if (elfTimer) {
+        clearTimeout(elfTimer);
+        elfTimer = null;
+      }
+      elfParade.classList.remove('show');
+      void elfParade.offsetWidth; // restart animation
+      elfParade.classList.add('show');
+      elfTimer = setTimeout(() => {
+        elfParade.classList.remove('show');
+        elfTimer = null;
+      }, 6400);
     }
 
     function addBlastEffect(x, removed) {
