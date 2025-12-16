@@ -82,6 +82,7 @@
       pointer-events: auto;
       cursor: grab;
       touch-action: none;
+      will-change: transform;
     }
     .art-hand.dragging { cursor: grabbing; }
     .counter {
@@ -814,6 +815,7 @@
     let bombDragging = false;
     let bombOffset = { x: 0, y: 0 };
     const bombSize = 64;
+    let springFrame = null;
 
     function updateCounter() {
       if (counterEl) counterEl.textContent = `The Jolliness Counter: ${jollyCount}`;
@@ -835,15 +837,20 @@
         y += velocity;
         if (Math.abs(y) < 0.5 && Math.abs(velocity) < 0.5) {
           setHandY(0);
+          springFrame = null;
           return;
         }
         setHandY(y);
-        requestAnimationFrame(step);
+        springFrame = requestAnimationFrame(step);
       }
-      requestAnimationFrame(step);
+      springFrame = requestAnimationFrame(step);
     }
 
     function onPointerDown(e) {
+      if (springFrame) {
+        cancelAnimationFrame(springFrame);
+        springFrame = null;
+      }
       dragging = true;
       hand.classList.add('dragging');
       dragStartY = e.clientY;
