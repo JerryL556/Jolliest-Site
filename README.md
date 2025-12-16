@@ -1,12 +1,11 @@
-# Jolliest-Site
+# Jolliest-Site – https://jerryl556.github.io/Jolliest-Site/
 
-Cozy Christmas snowfall with a growing drift, interactive controls, and a playful Snow Bomb.
+A cozy Christmas scene with snowfall that piles up, a drag-and-drop Snow Bomb, and a pull-to-joy alarm that cranks the jolliness meter.
 
-## Features
-- Canvas snowfall that accumulates on the ground over time.
-- Holiday Hub controls: adjust snow speed, density, wind, or trigger Blizzard Mode.
-- Jolliness counter that increments when you pull the hand illustration to the max.
-- Snow Bomb: drag, drop, and watch it clear a blast circle with a matching visual effect.
-- Festive visuals: title banner, corner art, and a Merry hand illustration over the background.
+## Main features and how they work
+- Snow that builds up: Canvas-rendered flakes fall with gravity, wind, and random sway, then settle into a heightmap so the snow visually piles higher over time. A soft blur and gradient shading on the accumulated layers sell the drift.
+- Holiday controls: The “Holiday Hub” sliders tweak flake speed, density, gravity, wind, and spawn rate, letting you go from gentle flurries to full Blizzard Mode without reloading.
+- Snow Bomb clean-up: The bomb is draggable; when released it detonates at the drop point, carving a circular blast out of the snow heightmap and spawning a matching blast animation so the cleared area instantly shows.
+- Pull-to-joy alarm: A draggable hand illustration acts like a spring-loaded lever. Pulling it to the stop triggers a jolliness increment, plays the “ho ho ho” audio, flashes the alarm lamps, and now cues an elf parade on every 10th pull.
 
 Open `index.html` in a browser to enjoy the scene.
